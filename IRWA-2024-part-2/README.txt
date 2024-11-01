@@ -37,9 +37,9 @@ Detailed Explanation
   
 - Part 1.2 expands on the analysis performed in Part 1, introducing new functions to extract deeper insights from the data and visualize key findings.
 
-- Part 2.1 builds an inverted index to organize the document collection, allowing efficient retrieval of documents containing specific terms.
+- Part 2.1 builds an inverted index to organize the document collection, allowing efficient retrieval of documents containing specific terms. Also implements a search function to process queries, identifying documents that contain all terms in the query (AND operation) and ranks the results using TF-IDF weighting.
 
-- Part 2.2 implements a function to search the inverted index, processing queries by identifying documents that contain all query terms (AND operation).
+- Part 2.2 defines and applies several metrics, such as Precision@K, Recall@K, Mean Average Precision (MAP), and others, to assess the retrieval effectiveness of the search engine.
 
 
 
