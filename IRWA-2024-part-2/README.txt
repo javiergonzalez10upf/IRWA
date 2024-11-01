@@ -4,17 +4,25 @@ FINAL PROJECT PART 2 (README)
 - Javier González (243078)
 - Mireia Pou (251725)
 
-The objective of this project is to develop a search engine. In this second part, we continue analyzing and enriching the data processed in the first part.
+The objective of this project is to develop a search engine. In this second part, we focus on building an indexing system and evaluating the relevance of search results.
+
 
 Project Structure
 
 - Part 0: Imports and Drive setup
-- Part 1: Text Preprocessing (only section 1.1 is required to run this part)
-  - 1.1 Data Load
-- Part 2: Further Data Analysis
-  - 2.1 Additional Analysis Functions
-  - 2.2 Statistical Insights
-  - 2.3 Data Visualization
+- Part 1.1: Text Preprocessing 
+- Part 1.2: Further Data Analysis
+- Part 2.1: Indexing
+	2.1.1: Inverted Index
+	2.1.2: Querying
+	2.1.3: Ranking with TF-IDF
+- Part 2.2: Evaluation
+	2.2.1: Evaluation Functions
+	2.2.2: Evaluation of Provided Queries
+	2.2.3: Evaluation of Proposed Queries
+	2.2.4: Two-dimensional Representation with T-SNE
+
+
 
 Important Notes
 
@@ -27,8 +35,11 @@ Detailed Explanation
   
 - Part 1.1 loads the data directly from a specified ZIP path. Note: Ensure the dataset file path is updated accordingly.
   
-- Part 2 expands on the analysis performed in Part 1, introducing new functions to extract deeper insights from the data and visualize key findings.
+- Part 1.2 expands on the analysis performed in Part 1, introducing new functions to extract deeper insights from the data and visualize key findings.
 
+- Part 2.1 builds an inverted index to organize the document collection, allowing efficient retrieval of documents containing specific terms.
+
+- Part 2.2 implements a function to search the inverted index, processing queries by identifying documents that contain all query terms (AND operation).
 
 
 
