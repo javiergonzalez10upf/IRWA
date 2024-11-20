@@ -37,13 +37,20 @@ search_engine = SearchEngine()
 # instantiate our in memory persistence
 analytics_data = AnalyticsData()
 
-# print("current dir", os.getcwd() + "\n")
+'''# print("current dir", os.getcwd() + "\n")
 # print("__file__", __file__ + "\n")
 full_path = os.path.realpath(__file__)
 path, filename = os.path.split(full_path)
 # print(path + ' --> ' + filename + "\n")
 # load documents corpus into memory.
-file_path = path + "/tweets-data-who.json"
+file_path = path + "/processed_tweets.json"'''
+
+# Get the absolute path of the current script
+full_path = os.path.realpath(__file__)
+# Extract the directory and filename from the full path
+path, filename = os.path.split(full_path)
+# Construct the path to the 'processed_tweets.json' file in the same directory as 'my_app.py'
+file_path = os.path.join(path, "processed_tweets.json")
 
 # file_path = "../../tweets-data-who.json"
 corpus = load_corpus(file_path)
