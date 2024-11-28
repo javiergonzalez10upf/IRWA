@@ -31,8 +31,14 @@ app.secret_key = 'afgsreg86sr897b6st8b76va8er76fcs6g8d7'
 # open browser dev tool to see the cookies
 app.session_cookie_name = 'IRWA_SEARCH_ENGINE'
 
+
+
+full_path = os.path.realpath(__file__) #get current path
+path, filename = os.path.split(full_path)
+file_path = path + "/processed_tweets.json"
+corpus = load_corpus(file_path)
 # instantiate our search engine
-search_engine = SearchEngine()
+search_engine = SearchEngine(corpus=corpus)
 
 # instantiate our in memory persistence
 analytics_data = AnalyticsData()
@@ -54,7 +60,7 @@ file_path = os.path.join(path, "processed_tweets.json")
 
 # file_path = "../../tweets-data-who.json"
 corpus = load_corpus(file_path)
-print("loaded corpus. first elem:", list(corpus.values())[0])
+#print("loaded corpus. first elem:", list(corpus.values())[0])
 
 
 # Home URL "/"
