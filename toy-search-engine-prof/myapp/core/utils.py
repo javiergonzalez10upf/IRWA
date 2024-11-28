@@ -171,17 +171,17 @@ def rank_documents(terms, doc_ids, index, idf, tf, corpus):
     query_norm = la.norm(list(query_terms_count.values()))
 
     for termIndex, term in enumerate(terms):
-        if term not in index:
-            continue
+        if term not in index or term not in idf:
+            continue  # Skip terms not in the index or idf dictionary
 
         # Compute tf*idf for the query
-        query_vector[termIndex] = query_terms_count[term] / query_norm * idf[term]
+        query_vector[termIndex] = query_terms_count[term] / query_norm * idf.get(term, 0)
 
         # Generate document vectors for matching docs
         for doc_index, entry in enumerate(index[term]):
             doc_id, postings = entry
 
-            if doc_id in doc_ids:
+            if doc_id in doc_ids and term in tf:
                 doc_vectors[doc_id][termIndex] = tf[term][doc_index] * idf[term]
 
     # Calculate the score of each document
@@ -222,17 +222,17 @@ def search_tf_idf(query, index, corpus, idf, tf):
     query = build_terms(query)
     result_docs = None  # Start with None to allow initialization by the first term
     for term in query:
-        try:
-            # Store in term_docs the IDs of the docs that contain "term"
-            term_docs = set(posting[0] for posting in index[term])
+        if term not in index:
+            continue  # Skip terms not in the index
+        term_docs = set(posting[0] for posting in index[term])
 
-            if result_docs is None:
-                result_docs = term_docs  # Initialize with the first term's docs
-            else:
-                result_docs = result_docs.intersection(term_docs)  # (AND operation)
-        except KeyError:
-            # If any term is not in the index, no documents contain all terms, return empty list
-            return []
+        if result_docs is None:
+            result_docs = term_docs  # Initialize with the first term's docs
+        else:
+            result_docs = result_docs.intersection(term_docs)  # (AND operation)
+
+    if not result_docs:  # Return an empty list if no documents match
+        return []
 
     # Convert result_docs to a list if it's not empty
     result_docs = list(result_docs)
