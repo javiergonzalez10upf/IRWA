@@ -7,6 +7,8 @@ import os
 from myapp.search.load_corpus import load_corpus
 from json import JSONEncoder
 import uuid
+from myapp.core.utils import create_index_tfidf
+
 
 app = Flask(__name__)
 
@@ -40,12 +42,9 @@ file_path = path + "/processed_tweets.json"
 print(file_path)
 corpus = load_corpus(file_path)
 #print(corpus)
-print("loaded corpus. first elem:", list(corpus.values())[0])
-
 
 # instantiate our search engine
-search_engine = SearchEngine()
-
+search_engine = SearchEngine(corpus=corpus) # Añadir los tweets!!!!!!!!!!!!
 
 
 # Home URL "/"
@@ -78,14 +77,14 @@ def search_form_post():
 
     search_id = str(uuid.uuid4()) #I just get randomly an ID - unique identifier
 
-    results = search_engine.search(search_query, search_id, corpus)
+    ranked_docs = search_engine.search(search_query, search_id, corpus)
 
-    found_count = len(results)
+    found_count = len(ranked_docs)
     session['last_found_count'] = found_count
 
     print(session)
 
-    return render_template('results.html', results_list=results, page_title="Results", found_counter=found_count)
+    return render_template('results.html', results_list=ranked_docs, page_title="Results", found_counter=found_count)
 
 
 

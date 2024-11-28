@@ -5,72 +5,36 @@ from pandas import json_normalize
 
 _corpus = {}
 
-def load_corpus(path) -> [Document]:
+def load_corpus(json_file):
     """
-    Load the corpus data from a JSON file and return a list of Document objects.
-    """
-    # Read all lines from the provided JSON file
-    with open(path, encoding='utf-8') as fp:
-        lines = fp.readlines()
-
-    # Combine the lines into a single JSON string
-    json_string = ''.join(lines)
+    Load a JSON file containing tweets and convert them into a list of Document objects.
     
-    # Parse the JSON string into a Python object
-    json_data = json.loads(json_string)
-
-    # If the data is a list of tweets, normalize it directly
-    if isinstance(json_data, list):
-        df = json_normalize(json_data)  # Directly normalize the list of tweets
-    else:
-        # Handle the case where the JSON is not a list (if it's a dictionary, for example)
-        print("Unexpected data format")
-        return []
-
-    # Ensure 'DocID' is used as a unique identifier for each tweet
-    df['DocID'] = df.index.values
-
-    # Apply the row-to-doc conversion function to populate the corpus
-    df.apply(_row_to_doc_dict, axis=1)
-
-    # Return the populated corpus
-    return _corpus
-
-
-def _row_to_doc_dict(row: pd.Series):
+    Args:
+        json_file (str): Path to the JSON file.
+    
+    Returns:
+        list[Document]: A list of Document objects.
     """
-    Convert a DataFrame row into a Document or ResultItem object and add it to _corpus.
-    """
-    # Create a Document object for the raw tweet data
-    _corpus[row['DocID']] = Document(
-        doc_id=row['DocID'],
-        original_tweet=row['Original Tweet'], 
-        tokenized_tweet=row['Tokenized Tweet'],
-        date=row['Date'],  
-        username=row['Username'],
-        followers_count=row['FollowersCount'],  
-        hashtags=row['Hashtags'],  
-        likes=row['Likes'], 
-        retweets=row['Retweets'],
-        reply_count=row['ReplyCount'], 
-        url=row['Url'] 
-    )
+    with open(json_file, 'r') as file:
+        data = json.load(file)  # Load JSON content
 
-    # If you want to create ResultItem objects, you can add a ranking value here
-    ranking = 0  # Placeholder for ranking, could be calculated based on some criteria
-    _corpus[row['DocID']] = ResultItem(
-        doc_id=row['DocID'],
-        original_tweet=row['Original Tweet'],
-        tokenized_tweet=row['Tokenized Tweet'],
-        date=row['Date'],
-        username=row['Username'],
-        followers_count=row['FollowersCount'],
-        hashtags=row['Hashtags'],
-        likes=row['Likes'],
-        retweets=row['Retweets'],
-        reply_count=row['ReplyCount'],
-        url=row['Url'],
-        ranking=ranking
-    )
+    documents = []
+    for item in data:
+        # Create Document object from each JSON item
+        doc = Document(
+            doc_id=item['DocID'],
+            original_tweet=item['Original Tweet'],
+            tokenized_tweet=item['Tokenized Tweet'],
+            date=item['Date'],
+            username=item['Username'],
+            followers_count=item['FollowersCount'],
+            hashtags=item['Hashtags'],
+            likes=item['Likes'],
+            retweets=item['Retweets'],
+            reply_count=item['ReplyCount'],
+            url=item['Url']
+        )
+        documents.append(doc)
 
+    return documents
 

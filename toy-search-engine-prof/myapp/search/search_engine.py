@@ -1,8 +1,8 @@
 import random
 from myapp.search.objects import ResultItem, Document
+from myapp.core.utils import create_index_tfidf, rank_documents, search_tf_idf
 
-
-def build_demo_results(corpus: dict, search_id, search_query):
+def build_results(corpus: dict, search_id, search_query):
     """
     Build demo results for tweets based on the search query.
     :param corpus: Dictionary of Document objects (tweets) indexed by DocID
@@ -45,6 +45,15 @@ def build_demo_results(corpus: dict, search_id, search_query):
 
 class SearchEngine:
     """Educational search engine adapted for tweets."""
+    def __init__(self, corpus):
+        """
+        Initialize the search engine, create the index, and prepare for search operations.
+        :param corpus: Dictionary of Document objects (tweets) indexed by DocID
+        """
+        # Generate the TF-IDF index, tf, df, and idf from the corpus
+        self.corpus = corpus
+        self.index, self.tf, self.df, self.idf = create_index_tfidf(self.corpus)
+        print("Index created successfully.")
 
     def search(self, search_query, search_id, corpus):
         """
@@ -57,6 +66,6 @@ class SearchEngine:
         print("Search query:", search_query)
 
         # For now, we're using the demo results builder
-        results = build_demo_results(corpus, search_id, search_query)  
+        ranked_result_items = search_tf_idf(search_query, self.index, self.corpus, self.idf, self.tf)
 
-        return results
+        return ranked_result_items
