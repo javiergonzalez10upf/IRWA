@@ -1,45 +1,39 @@
 {% extends "base.html" %}
 {% block page_title %}{{ page_title }}{% endblock %}
 {% block content %}
-    Found <strong>{{ found_counter }}</strong> results...
+    <p>Found <strong>{{ found_counter }}</strong> results...</p>
     <hr>
-    {% for item in results_list %}
-        <div class="pb-3">
+    <div class="row">
+        {% for item in results_list %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <!-- DOC ID -->
+                    <h5 class="card-title">Document ID: {{ item.doc_id }}</h5>
 
-            <!-- DOC ID -->
-            <div class="doc-title">
-                <strong>Document ID:</strong> {{ item.doc_id  }}
+                    <!-- URL -->
+                    <p class="card-text">
+                        <strong>URL:</strong> <cite><a href="{{ item.url }}" target="_blank">{{ item.url }}</a></cite>
+                    </p>
+
+                    <!-- Metadata -->
+                    <p class="card-text">
+                        <strong>Date:</strong> {{ item.date }}<br>
+                        <strong>Username:</strong> {{ item.username }}<br>
+                        <strong>Followers:</strong> {{ item.followers_count }}<br>
+                        <strong>Likes:</strong> {{ item.likes }} |
+                        <strong>Retweets:</strong> {{ item.retweets }} |
+                        <strong>Replies:</strong> {{ item.reply_count }}
+                    </p>
+
+                    <!-- Summary -->
+                    <p class="card-text">
+                        <strong>Summary:</strong> {{ item.original_tweet }}
+                    </p>
+
+                </div>
             </div>
-
-            <!-- URL -->
-            <div class="doc-url">
-                <cite><a href="{{ item.url }}">{{ item.url }}</a></cite>
-            </div>
-
-            <!-- Metadata -->
-            <div class="doc-meta">
-                <p>
-                    <strong>Date:</strong> {{ item.date }}<br>
-                    <strong>Username:</strong> {{ item.username }}<br>
-                    <strong>Followers:</strong> {{ item.followers_count }}<br>
-                    <strong>Likes:</strong> {{ item.likes }} | 
-                    <strong>Retweets:</strong> {{ item.retweets }} | 
-                    <strong>Replies:</strong> {{ item.reply_count }}
-                </p>
-            </div>
-
-            <!-- Summary -->
-            <div class="doc-desc">
-                <strong>Summary:</strong> {{ item.original_tweet }}
-            </div>
-
-            <!-- Hashtags -->
-            <div class="doc-hashtags">
-                <strong>Hashtags:</strong> {{ item.hashtags | join(', ') }}
-            </div>
-
         </div>
-
-    {% endfor %}
+        {% endfor %}
+    </div>
 {% endblock %}
-
