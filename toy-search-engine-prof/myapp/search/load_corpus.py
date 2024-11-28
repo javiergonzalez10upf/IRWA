@@ -15,7 +15,7 @@ def load_corpus(json_file):
     Returns:
         list[Document]: A list of Document objects.
     """
-    with open(json_file, 'r') as file:
+    with open(json_file, 'r', encoding='utf-8') as file:
         data = json.load(file)  # Load JSON content
 
     documents = []
