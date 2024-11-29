@@ -10,17 +10,28 @@
     text-align: center;
 }
 
-/*.btn-primary {*/
-/*    background-color: #c8102e;*/
-/*    border: #c8102e;*/
-/*}*/
+
+.results-container {
+    display: block;
+    width: 100%;
+}
+
+.card {
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+/.btn-primary {/
+/*    background-color: #c8102e;/
+/    border: #c8102e;/
+/}/
 
 .btn-primary,
 .btn-primary:active,
 .btn-primary:focus,
 .btn-primary:hover,
 .btn-primary:not(:disabled):not(.disabled):active {
-    /*color: #ffffff;*/
+    /color: #ffffff;*/
     background-color: #c8102e;
     border-color: #c8102e;
 }

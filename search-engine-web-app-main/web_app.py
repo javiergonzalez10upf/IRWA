@@ -1,10 +1,10 @@
 import os
 from json import JSONEncoder
-
+### WWUUU iria
 # pip install httpagentparser
 import httpagentparser  # for getting the user agent as json
 import nltk
-from flask import Flask, render_template, session
+from flask import Flask, render_template, session, redirect, url_for
 from flask import request
 
 from myapp.analytics.analytics_data import AnalyticsData, ClickedDoc
@@ -92,45 +92,51 @@ def search_form_post():
     session['last_search_query'] = search_query
 
     search_id = analytics_data.save_query_terms(search_query)
+    
+    # Store the query_id in the session
+    session['last_search_query_id'] = search_id  # This is the key change
 
     results = search_engine.search(search_query, search_id, corpus)
 
     found_count = len(results)
     session['last_found_count'] = found_count
+    session['docs_ids'] = [result.doc_id for result in results]
 
     print(session)
 
-    return render_template('results.html', results_list=results, page_title="Results", found_counter=found_count)
+    return render_template('results.html', results_list=results, page_title="Results", found_counter=found_count, search_id=search_id, docs_ids=session.get('docs_ids'))
 
 
 @app.route('/doc_details', methods=['GET'])
 def doc_details():
-    # getting request parameters:
-    # user = request.args.get('user')
+    clicked_doc_id = request.args.get("id")  # Tweet/doc ID
+    search_id = request.args.get("search_id")  # Query ID
 
-    print("doc details session: ")
-    print(session)
+    print(f"click in id={clicked_doc_id}")
+    print(f"search_id={search_id}")
 
-    res = session["some_var"]
+    # Find the document by iterating through the corpus list of Document objects
+    doc = None
+    for document in corpus:  # Assuming corpus is a list of Document objects
+        if document.doc_id == clicked_doc_id:  # Access the doc_id attribute directly
+            doc = document
+            break  # Stop the loop once the document is found
 
-    print("recovered var from session:", res)
+    # If doc not found, handle the error or show a 404 page
+    if not doc:
+        return "Document not found", 404
 
-    # get the query string parameters from request
-    clicked_doc_id = request.args["id"]
-    p1 = int(request.args["search_id"])  # transform to Integer
-    p2 = int(request.args["param2"])  # transform to Integer
-    print("click in id={}".format(clicked_doc_id))
+    # Record the click in analytics
+    if clicked_doc_id:
+        analytics_data.record_click(query_id=search_id, doc_id=clicked_doc_id, ranking=1)
+        print(f"fact_clicks count for id={clicked_doc_id}: {analytics_data.fact_clicks.get(clicked_doc_id, 0)}")
 
-    # store data in statistics table 1
-    if clicked_doc_id in analytics_data.fact_clicks.keys():
-        analytics_data.fact_clicks[clicked_doc_id] += 1
-    else:
-        analytics_data.fact_clicks[clicked_doc_id] = 1
-
-    print("fact_clicks count for id={} is {}".format(clicked_doc_id, analytics_data.fact_clicks[clicked_doc_id]))
-
-    return render_template('doc_details.html')
-
+    # Retrieve the last search query from the session for the "Back to Search Results" link
+    search_query = session.get('last_search_query')  # Make sure to store this when the search is performed
+    tweet_url = doc.url 
+    # Return the document details page
+    return redirect(tweet_url)
+    #return render_template('doc_details.html', item=doc, search_query=search_query)
 
 @app.route('/stats', methods=['GET'])
 def stats():
@@ -154,20 +160,86 @@ def stats():
     # ### End replace with your code ###
 
 
+import time
+from datetime import datetime
+import httpagentparser
+import geocoder  # to fetch country from IP (you may need to install the geocoder library)
+
 @app.route('/dashboard', methods=['GET'])
 def dashboard():
-    visited_docs = []
-    print(analytics_data.fact_clicks.keys())
-    for doc_id in analytics_data.fact_clicks.keys():
-        d: Document = corpus[int(doc_id)]
-        doc = ClickedDoc(doc_id, d.description, analytics_data.fact_clicks[doc_id])
-        visited_docs.append(doc)
+    # Track the number of HTTP requests
+    request_count = session.get('request_count', 0) + 1
+    session['request_count'] = request_count
 
-    # simulate sort by ranking
+    # Track click data for documents
+    visited_docs = []
+    for doc_id in analytics_data.fact_clicks.keys():
+        # Access the document in corpus using doc_id directly as a string key
+        # Assuming corpus is a list of Document objects
+        if doc_id.startswith('doc_'):  # Ensure doc_id format is correct
+            # Find the document in the corpus list by matching doc_id
+            d = next((doc for doc in corpus if doc.doc_id == doc_id), None)  # Get document by doc_id
+
+            if d:  # Ensure the document exists
+                doc_data = analytics_data.fact_clicks[doc_id]
+                doc = ClickedDoc(doc_id, d.original_tweet, doc_data["click_count"])  # Assuming description is original_tweet
+
+                # Capture details like the query IDs and rankings
+                doc_data['queries'] = doc_data['query_ids']
+                doc_data['rankings'] = doc_data['rankings']
+                visited_docs.append(doc)
+
+    # Sort documents by click count
     visited_docs.sort(key=lambda doc: doc.counter, reverse=True)
 
-    for doc in visited_docs: print(doc)
-    return render_template('dashboard.html', visited_docs=visited_docs)
+    # Track session data
+    active_sessions = len(session)  # Example: Count the number of active sessions
+
+    # Track query data: Number of unique terms, order of queries, etc.
+    query_details = []
+    unique_terms = set()
+    for query in analytics_data.queries:
+        query_terms = query['terms'].split()  # Split query terms
+        query_hour = datetime.fromisoformat(query['timestamp']).strftime('%H')  # Hour of search
+        query_details.append({
+            'query': query['terms'],
+            'term_count': len(query_terms),
+            'hour': query_hour,
+            'query_id': query['query_id']
+        })
+        unique_terms.update(query_terms)
+
+    # Track user context: browser, IP, etc.
+    user_agent = request.headers.get('User-Agent')
+    user_ip = request.remote_addr
+    agent = httpagentparser.detect(user_agent)
+    browser = agent.get('browser', 'Unknown')
+    os = agent.get('os', 'Unknown')
+
+    # Detect whether the device is a computer or mobile
+    device_type = "Mobile" if "Mobile" in user_agent else "Desktop"
+
+    # Fetch the country from the user's IP address
+    location = geocoder.ip(user_ip)
+    country = location.country if location else "Unknown"
+
+    # Time of the day
+    time_of_day = datetime.now().strftime('%H:%M:%S')
+
+    # Pass all this data to the template
+    return render_template('dashboard.html', 
+                           visited_docs=visited_docs,
+                           request_count=request_count,
+                           active_sessions=active_sessions,
+                           unique_terms=len(unique_terms),
+                           query_details=query_details,
+                           browser=browser,
+                           os=os,
+                           device_type=device_type,
+                           country=country,
+                           time_of_day=time_of_day,
+                           user_ip=user_ip)
+
 
 
 @app.route('/sentiment')
