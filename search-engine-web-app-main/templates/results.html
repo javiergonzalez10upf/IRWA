@@ -8,13 +8,8 @@
         <div class="col-md-4 mb-4">
             <div class="card h-100">
                 <div class="card-body">
-                    <!-- DOC ID -->
-                    <h5 class="card-title">Document ID: {{ item.doc_id }}</h5>
-
-                    <!-- URL -->
-                    <p class="card-text">
-                        <strong>URL:</strong> <cite><a href="{{ item.url }}" target="_blank">{{ item.url }}</a></cite>
-                    </p>
+                    <!-- DOC ID: URL -->
+                    <h5 class="card-title"> <cite><a href="{{ item.url }}" target="_blank">{{ item.url }}</a></cite></h5>
 
                     <!-- Metadata -->
                     <p class="card-text">
