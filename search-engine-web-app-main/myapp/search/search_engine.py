@@ -55,7 +55,7 @@ class SearchEngine:
         self.index, self.tf, self.df, self.idf = create_index_tfidf(self.corpus)
         print("Index created successfully.")
 
-    def search(self, search_query, search_id, corpus):
+    def search(self, search_query, corpus):
         """
         Perform a search over the tweets corpus.
         :param search_query: The search query entered by the user

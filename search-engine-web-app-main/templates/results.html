@@ -10,7 +10,7 @@
                 <!-- DOC ID: URL -->
                 <h5 class="card-title">
                     <cite>
-                        <a href="{{ url_for('doc_details', id=item.doc_id, search_id=search_id) }}" target="_blank">
+                        <a href="{{ url_for('doc_details', id=item.doc_id, search=search_query) }}" target="_blank">
                             {{ item.url }}
                         </a>
                     </cite>

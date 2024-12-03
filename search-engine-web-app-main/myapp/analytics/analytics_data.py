@@ -25,16 +25,17 @@ class AnalyticsData:
         """
         Save query terms with metadata like timestamp and term count.
         """
-        query_id = random.randint(0, 100000)
+        #query_id = random.randint(0, 100000)
         self.queries.append({
-            "query_id": query_id,
+            #"query_id": query_id,
             "terms": terms,
             "term_count": len(terms.split()),
             "timestamp": datetime.now().isoformat()
         })
-        return query_id
+        #return query_id
+        
 
-    def record_click(self, query_id: int, doc_id: str, ranking: int):
+    def record_click(self, search_query: str, doc_id: str, ranking: int):
         """
         Save click details with associated query and ranking.
         """
@@ -42,12 +43,12 @@ class AnalyticsData:
             self.fact_clicks[doc_id] = {
                 "click_count": 0,
                 "last_clicked": None,
-                "query_ids": [],
+                "search_queries": [],
                 "rankings": []
             }
         self.fact_clicks[doc_id]["click_count"] += 1
         self.fact_clicks[doc_id]["last_clicked"] = datetime.now().isoformat()
-        self.fact_clicks[doc_id]["query_ids"].append(query_id)
+        self.fact_clicks[doc_id]["search_queries"].append(search_query)
         self.fact_clicks[doc_id]["rankings"].append(ranking)
 
     def log_http_request(self, ip: str, browser: str, os: str):
@@ -98,10 +99,12 @@ class AnalyticsData:
         return self.to_json()
 
 class ClickedDoc:
-    def __init__(self, doc_id, description, counter):
+    def __init__(self, doc_id, description, counter, queries, rankings):
         self.doc_id = doc_id
         self.description = description
         self.counter = counter
+        self.queries = queries
+        self.rankings = rankings
 
     def to_json(self):
         return self.__dict__

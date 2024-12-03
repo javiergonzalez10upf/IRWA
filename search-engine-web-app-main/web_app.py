@@ -91,12 +91,12 @@ def search_form_post():
 
     session['last_search_query'] = search_query
 
-    search_id = analytics_data.save_query_terms(search_query)
+    analytics_data.save_query_terms(search_query)
     
     # Store the query_id in the session
-    session['last_search_query_id'] = search_id  # This is the key change
+    #session['last_search_query_id'] = search_id  # This is the key change
 
-    results = search_engine.search(search_query, search_id, corpus)
+    results = search_engine.search(search_query, corpus=corpus) #search_id, corpus)
 
     found_count = len(results)
     session['last_found_count'] = found_count
@@ -104,16 +104,16 @@ def search_form_post():
 
     print(session)
 
-    return render_template('results.html', results_list=results, page_title="Results", found_counter=found_count, search_id=search_id, docs_ids=session.get('docs_ids'))
+    return render_template('results.html', results_list=results, page_title="Results", found_counter=found_count, search=search_query, docs_ids=session.get('docs_ids'))
 
 
 @app.route('/doc_details', methods=['GET'])
 def doc_details():
     clicked_doc_id = request.args.get("id")  # Tweet/doc ID
-    search_id = request.args.get("search_id")  # Query ID
+    search_query = session.get('last_search_query')  # Make sure to store this when the search is performed
 
     print(f"click in id={clicked_doc_id}")
-    print(f"search_id={search_id}")
+    print(f"search_query={search_query}")
 
     # Find the document by iterating through the corpus list of Document objects
     doc = None
@@ -128,11 +128,10 @@ def doc_details():
 
     # Record the click in analytics
     if clicked_doc_id:
-        analytics_data.record_click(query_id=search_id, doc_id=clicked_doc_id, ranking=1)
+        analytics_data.record_click(search_query=search_query, doc_id=clicked_doc_id, ranking=1)
         print(f"fact_clicks count for id={clicked_doc_id}: {analytics_data.fact_clicks.get(clicked_doc_id, 0)}")
 
     # Retrieve the last search query from the session for the "Back to Search Results" link
-    search_query = session.get('last_search_query')  # Make sure to store this when the search is performed
     tweet_url = doc.url 
     # Return the document details page
     return redirect(tweet_url)
@@ -182,11 +181,7 @@ def dashboard():
 
             if d:  # Ensure the document exists
                 doc_data = analytics_data.fact_clicks[doc_id]
-                doc = ClickedDoc(doc_id, d.original_tweet, doc_data["click_count"])  # Assuming description is original_tweet
-
-                # Capture details like the query IDs and rankings
-                doc_data['queries'] = doc_data['query_ids']
-                doc_data['rankings'] = doc_data['rankings']
+                doc = ClickedDoc(doc_id, d.original_tweet, doc_data["click_count"], doc_data['search_queries'][-1], doc_data['rankings'][-1])  # Assuming description is original_tweet
                 visited_docs.append(doc)
 
     # Sort documents by click count
@@ -205,7 +200,7 @@ def dashboard():
             'query': query['terms'],
             'term_count': len(query_terms),
             'hour': query_hour,
-            'query_id': query['query_id']
+            #'query_id': query['query_id']
         })
         unique_terms.update(query_terms)
 
