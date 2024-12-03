@@ -1,6 +1,9 @@
 import json
 import random
 from datetime import datetime
+import geocoder
+import httpagentparser
+
 
 
 class AnalyticsData:
@@ -21,6 +24,15 @@ class AnalyticsData:
     # Log HTTP requests and metadata
     http_requests = []
 
+    ips = []
+    browsers = []
+    os = []
+    device_types = []
+    countries = []
+    locations = []
+    agents = []
+    times = []
+
     def save_query_terms(self, terms: str) -> int:
         """
         Save query terms with metadata like timestamp and term count.
@@ -39,6 +51,7 @@ class AnalyticsData:
         """
         Save click details with associated query and ranking.
         """
+        print('del record click', search_query)
         if doc_id not in self.fact_clicks:
             self.fact_clicks[doc_id] = {
                 "click_count": 0,
@@ -62,17 +75,36 @@ class AnalyticsData:
             "timestamp": datetime.now().isoformat()
         })
 
-    def start_session(self, session_id: str, user_ip: str, user_agent: dict):
+    def start_session(self, user_ip, user_agent):
         """
         Start a new session with context details.
         """
-        self.sessions[session_id] = {
-            "start_time": datetime.now().isoformat(),
-            "user_ip": user_ip,
-            "user_agent": user_agent,
-            "queries": [],
-            "clicks": []
-        }
+        self.ips.append(user_ip)
+        self.agents.append(user_agent)
+        agent = httpagentparser.detect(user_agent)
+        self.browsers.append(agent.get('browser', 'Unknown'))
+        self.device_types.append("Mobile" if "Mobile" in agent else "Desktop")
+        self.locations.append(geocoder.ip(user_ip))
+        self.os.append(agent.get('os', 'Unknown'))
+        self.countries.append(self.locations[-1].country if self.locations[-1] else "Unknown")
+        self.times = datetime.now().strftime('%H:%M:%S')
+
+        if len(self.sessions) == 0:
+            self.sessions[0] = {
+                "start_time": datetime.now().isoformat(),
+                "user_ip": user_ip,
+                "user_agent": user_agent,
+                "queries": [],
+                "clicks": []
+            }
+        else:
+            self.sessions[len(self.sessions)] = {
+                "start_time": datetime.now().isoformat(),
+                "user_ip": user_ip,
+                "user_agent": user_agent,
+                "queries": [],
+                "clicks": []
+            }    
 
     def record_session_activity(self, session_id: str, activity_type: str, activity_data: dict):
         """

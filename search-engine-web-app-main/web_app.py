@@ -82,6 +82,8 @@ def index():
 
     print(session)
 
+    analytics_data.start_session(user_ip, user_agent)
+
     return render_template('index.html', page_title="Welcome")
 
 
@@ -102,6 +104,11 @@ def search_form_post():
     session['last_found_count'] = found_count
     session['docs_ids'] = [result.doc_id for result in results]
 
+    rank_id = {}
+    for i in results:
+        rank_id[i.doc_id] = i.ranking + 1
+    
+    session['rank_dict'] = rank_id
     print(session)
 
     return render_template('results.html', results_list=results, page_title="Results", found_counter=found_count, search=search_query, docs_ids=session.get('docs_ids'))
@@ -111,7 +118,7 @@ def search_form_post():
 def doc_details():
     clicked_doc_id = request.args.get("id")  # Tweet/doc ID
     search_query = session.get('last_search_query')  # Make sure to store this when the search is performed
-
+    rank = session['rank_dict'][clicked_doc_id]
     print(f"click in id={clicked_doc_id}")
     print(f"search_query={search_query}")
 
@@ -128,8 +135,9 @@ def doc_details():
 
     # Record the click in analytics
     if clicked_doc_id:
-        analytics_data.record_click(search_query=search_query, doc_id=clicked_doc_id, ranking=1)
+        analytics_data.record_click(search_query=search_query, doc_id=clicked_doc_id, ranking=rank)
         print(f"fact_clicks count for id={clicked_doc_id}: {analytics_data.fact_clicks.get(clicked_doc_id, 0)}")
+        print('prueba queries', analytics_data.fact_clicks[clicked_doc_id]["search_queries"])
 
     # Retrieve the last search query from the session for the "Back to Search Results" link
     tweet_url = doc.url 
@@ -181,7 +189,8 @@ def dashboard():
 
             if d:  # Ensure the document exists
                 doc_data = analytics_data.fact_clicks[doc_id]
-                doc = ClickedDoc(doc_id, d.original_tweet, doc_data["click_count"], doc_data['search_queries'][-1], doc_data['rankings'][-1])  # Assuming description is original_tweet
+                print(doc_data['search_queries'])
+                doc = ClickedDoc(doc_id, d.original_tweet, doc_data["click_count"], doc_data['search_queries'], doc_data['rankings'])  # Assuming description is original_tweet
                 visited_docs.append(doc)
 
     # Sort documents by click count
@@ -205,21 +214,20 @@ def dashboard():
         unique_terms.update(query_terms)
 
     # Track user context: browser, IP, etc.
-    user_agent = request.headers.get('User-Agent')
-    user_ip = request.remote_addr
-    agent = httpagentparser.detect(user_agent)
-    browser = agent.get('browser', 'Unknown')
-    os = agent.get('os', 'Unknown')
+
+    user_agent = analytics_data.agents
+    user_ip = analytics_data.ips
+    browser = analytics_data.browsers
+    os = analytics_data.os
 
     # Detect whether the device is a computer or mobile
-    device_type = "Mobile" if "Mobile" in user_agent else "Desktop"
-
+    device_type = analytics_data.device_types
     # Fetch the country from the user's IP address
-    location = geocoder.ip(user_ip)
-    country = location.country if location else "Unknown"
+    location = analytics_data.locations
+    country = analytics_data.countries
 
     # Time of the day
-    time_of_day = datetime.now().strftime('%H:%M:%S')
+    time_of_day = analytics_data.times
 
     # Pass all this data to the template
     return render_template('dashboard.html', 

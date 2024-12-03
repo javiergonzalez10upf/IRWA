@@ -150,14 +150,13 @@ def rank_documents(terms, doc_ids, index, idf, tf, corpus):
 
     # Convert ranked document IDs to ResultItem instances
     result_items = []
-    for doc_id in ranked_doc_ids:
+    for i, doc_id in enumerate(ranked_doc_ids):
         doc = doc_map.get(doc_id)
         if not doc:
             continue  # Skip if no matching Document found
-        ranking = next(score[0] for score in doc_scores if score[1] == doc_id)
         result_items.append(ResultItem(
             doc.doc_id, doc.original_tweet, doc.tokenized_tweet, doc.date, doc.username,
-            doc.followers_count, doc.hashtags, doc.likes, doc.retweets, doc.reply_count, doc.url, ranking
+            doc.followers_count, doc.hashtags, doc.likes, doc.retweets, doc.reply_count, doc.url, i
         ))
 
     return result_items
