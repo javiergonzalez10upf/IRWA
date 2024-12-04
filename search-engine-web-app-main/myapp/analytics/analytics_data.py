@@ -23,7 +23,6 @@ class AnalyticsData:
 
     # Log HTTP requests and metadata
     http_requests = []
-
     ips = []
     browsers = []
     os = []
@@ -32,6 +31,9 @@ class AnalyticsData:
     locations = []
     agents = []
     times = []
+
+    #dictionary to store rank - docid
+    rank_id = {}
 
     def save_query_terms(self, terms: str) -> int:
         """

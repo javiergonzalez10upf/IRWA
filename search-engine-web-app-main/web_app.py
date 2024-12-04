@@ -11,6 +11,8 @@ from myapp.analytics.analytics_data import AnalyticsData, ClickedDoc
 from myapp.search.load_corpus import load_corpus
 from myapp.search.objects import Document, StatsDocument
 from myapp.search.search_engine import SearchEngine
+import zlib
+import base64
 
 
 # *** for using method to_json in objects ***
@@ -104,11 +106,11 @@ def search_form_post():
     session['last_found_count'] = found_count
     session['docs_ids'] = [result.doc_id for result in results]
 
-    rank_id = {}
-    for i in results:
-        rank_id[i.doc_id] = i.ranking + 1
+
     
-    session['rank_dict'] = rank_id
+    for i in results:
+        analytics_data.rank_id[i.doc_id] = i.ranking + 1
+    
     print(session)
 
     return render_template('results.html', results_list=results, page_title="Results", found_counter=found_count, search=search_query, docs_ids=session.get('docs_ids'))
@@ -118,7 +120,7 @@ def search_form_post():
 def doc_details():
     clicked_doc_id = request.args.get("id")  # Tweet/doc ID
     search_query = session.get('last_search_query')  # Make sure to store this when the search is performed
-    rank = session['rank_dict'][clicked_doc_id]
+    rank = analytics_data.rank_id[clicked_doc_id]
     print(f"click in id={clicked_doc_id}")
     print(f"search_query={search_query}")
 
