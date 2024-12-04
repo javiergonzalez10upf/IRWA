@@ -1,57 +1,52 @@
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8"> 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analytics Dashboard</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f9f9f9;
-            color: #333;
-        }
-        h1, h2 {
-            text-align: center;
-        }
-        .section {
-            margin-bottom: 20px;
-            padding: 15px;
-            background: #fff;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-        }
-        .section h2 {
-            margin-bottom: 10px;
-        }
-        .key-metric {
-            display: inline-block;
-            width: 30%;
-            text-align: center;
-            margin: 10px 0;
-            padding: 10px;
-            background: #eef;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-        .key-metric p {
-            margin: 5px 0;
-        }
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        li {
-            background: #eef;
-            margin: 5px 0;
-            padding: 10px;
-            border-radius: 5px;
-        }
-        p {
-            margin: 5px 0;
-        }
-    </style>
+<title>Analytics Dashboard</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        background-color: #f9f9f9;
+        color: #333;
+    }
+    h1, h2 {
+        text-align: center;
+    }
+    .section {
+        margin-bottom: 20px;
+        padding: 15px;
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+    }
+    .section h2 {
+        margin-bottom: 10px;
+    }
+    .key-metric {
+        display: inline-block;
+        width: 30%;
+        text-align: center;
+        margin: 10px 0;
+        padding: 10px;
+        background: #eef;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+    .key-metric p {
+        margin: 5px 0;
+    }
+    ul {
+        list-style-type: none;
+        padding: 0;
+    }
+    li {
+        background: #eef;
+        margin: 5px 0;
+        padding: 10px;
+        border-radius: 5px;
+    }
+    p {
+        margin: 5px 0;
+    }
+</style>
 </head>
 <body>
     <h1>Analytics Dashboard</h1>
@@ -80,7 +75,7 @@
             {% for query in query_details %}
             <li>
                 <strong>{{ query.query }}</strong> 
-                ({{ query.term_count }} terms, searched at {{ query.hour }}:00)
+                ({{ query.term_count }} terms, searched at {{ query.hour }})
             </li>
             {% endfor %}
         </ul>

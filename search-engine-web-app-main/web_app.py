@@ -204,7 +204,7 @@ def dashboard():
     unique_terms = set()
     for query in analytics_data.queries:
         query_terms = query['terms'].split()  # Split query terms
-        query_hour = datetime.fromisoformat(query['timestamp']).strftime('%H')  # Hour of search
+        query_hour = datetime.fromisoformat(query['timestamp']).strftime('%H:%M')  # Hour of search
         query_details.append({
             'query': query['terms'],
             'term_count': len(query_terms),
