@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block page_title %}{{ page_title }}{% endblock %}
+{% block content %}
+    <p>Found <strong>{{ found_counter }}</strong> results...</p>
+    <hr>
+    <div class="results-container">
+        {% for item in results_list %}
+        <div class="card mb-4">
+            <div class="card-body">
+                <!-- DOC ID: URL -->
+                <h5 class="card-title">
+                    <cite>
+                        <a href="{{ url_for('doc_details', id=item.doc_id, search=search_query) }}" target="_blank">
+                            {{ item.url }}
+                        </a>
+                    </cite>
+                </h5>
+
+                <!-- Metadata -->
+                <p class="card-text">
+                    <strong>Date:</strong> {{ item.date }}<br>
+                    <strong>Username:</strong> {{ item.username }}<br>
+                    <strong>Followers:</strong> {{ item.followers_count }}<br>
+                    <strong>Likes:</strong> {{ item.likes }} |
+                    <strong>Retweets:</strong> {{ item.retweets }} |
+                    <strong>Replies:</strong> {{ item.reply_count }}
+                </p>
+
+                <!-- Summary -->
+                <p class="card-text">
+                    <strong>Summary:</strong> {{ item.original_tweet }}
+                </p>
+
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% endblock %}
