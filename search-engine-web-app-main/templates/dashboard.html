@@ -1,33 +1,111 @@
-<h1>Dashboard</h1>
 
-<!-- HTTP request count -->
-<p>Request count: {{ request_count }}</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        h1, h2 {
+            text-align: center;
+        }
+        .section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .section h2 {
+            margin-bottom: 10px;
+        }
+        .key-metric {
+            display: inline-block;
+            width: 30%;
+            text-align: center;
+            margin: 10px 0;
+            padding: 10px;
+            background: #eef;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .key-metric p {
+            margin: 5px 0;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            background: #eef;
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        p {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Analytics Dashboard</h1>
 
-<!-- Active sessions -->
-<p>Active sessions: {{ active_sessions }}</p>
+    <!-- Key Indicators -->
+    <div class="section">
+        <h2>Key Indicators</h2>
+        <div class="key-metric">
+            <p><strong>Request Count</strong></p>
+            <p>{{ request_count }}</p>
+        </div>
+        <div class="key-metric">
+            <p><strong>Active Sessions</strong></p>
+            <p>{{ active_sessions }}</p>
+        </div>
+        <div class="key-metric">
+            <p><strong>Unique Search Terms</strong></p>
+            <p>{{ unique_terms }}</p>
+        </div>
+    </div>
 
-<!-- Query details -->
-<h3>Queries</h3>
-<ul>
-  {% for query in query_details %}
-    <li>{{ query.query }} ({{ query.term_count }} terms, searched at {{ query.hour }}:00)</li>
-  {% endfor %}
-</ul>
+    <!-- Query Details -->
+    <div class="section">
+        <h2>Query Details</h2>
+        <ul>
+            {% for query in query_details %}
+            <li>
+                <strong>{{ query.query }}</strong> 
+                ({{ query.term_count }} terms, searched at {{ query.hour }}:00)
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
 
-<!-- User context -->
-<p>Browser: {{ browser }}</p>
-<p>Operating System: {{ os }}</p>
-<p>Device: {{ device_type }}</p>
-<p>Country: {{ country }}</p>
-<p>IP Address: {{ user_ip }}</p>
+    <!-- Document Clicks -->
+    <div class="section">
+        <h2>Document Clicks</h2>
+        <ul>
+            {% for doc in visited_docs %}
+            <li>
+                <strong>{{ doc.description }}</strong> - Clicked {{ doc.counter }} times. Related queries: {{ doc.queries }}. Rankings: {{ doc.rankings }}
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
 
-<!-- Document clicks -->
-<h3>Document Clicks</h3>
-<ul>
-  {% for doc in visited_docs %}
-    <li>{{ doc.description }} - Clicked {{ doc.counter }} times. Related queries: {{ doc.queries }}. Rankings: {{ doc.rankings }}</li>
-  {% endfor %}
-</ul>
-
-<!-- Time of the day -->
-<p>Time of the day: {{ time_of_day }}</p>
+    <!-- User Context -->
+    <div class="section">
+        <h2>User Context</h2>
+        <p><strong>Browser:</strong> {{ browser }}</p>
+        <p><strong>Operating System:</strong> {{ os }}</p>
+        <p><strong>Device:</strong> {{ device_type }}</p>
+        <p><strong>Country:</strong> {{ country }}</p>
+        <p><strong>IP Address:</strong> {{ user_ip }}</p>
+    </div>
+</body>
+</html>
